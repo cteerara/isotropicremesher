@@ -76,15 +76,19 @@ int main(int argc, char **argv)
     std::vector<Vector3> inputVertices;
     std::vector<std::vector<size_t>> inputTriangles;
     
-    loadObj("../../gargoyle.obj", inputVertices, inputTriangles);
+    std::string obj_in = argv[1];
+    double edge_len_mod = std::atof(argv[2]);
+    int n_iter = std::atoi(argv[3]);
+    std::string obj_out = argv[4];
+    loadObj(obj_in, inputVertices, inputTriangles);
     
     IsotropicRemesher isotropicRemesher(&inputVertices, &inputTriangles);
     //isotropicRemesher.setSharpEdgeIncludedAngle(90);
-    //isotropicRemesher.setTargetEdgeLength(isotropicRemesher.initialAverageEdgeLength() * 0.5);
-    isotropicRemesher.setTargetTriangleCount(50000);
-    isotropicRemesher.remesh(3);
+    isotropicRemesher.setTargetEdgeLength(isotropicRemesher.initialAverageEdgeLength() * edge_len_mod);
+    /* isotropicRemesher.setTargetTriangleCount(50000); */
+    isotropicRemesher.remesh(n_iter);
     
-    FILE *fp = fopen("debug.obj", "wb");
+    FILE *fp = fopen(obj_out.c_str(), "wb");
     size_t outputIndex = 0;
     IsotropicHalfedgeMesh *halfedgeMesh = isotropicRemesher.remeshedHalfedgeMesh();
     for (IsotropicHalfedgeMesh::Vertex *vertex = halfedgeMesh->moveToNextVertex(nullptr); 
